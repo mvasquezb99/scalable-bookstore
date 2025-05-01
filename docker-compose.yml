@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   flaskapp:
-    build: mvasquezb999/bookstore-scalable
+    image: mvasquezb999/bookstore-scalable
     restart: always
     environment:
       - FLASK_ENV=development
