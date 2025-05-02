@@ -7,6 +7,6 @@ services:
     environment:
       - FLASK_ENV=development
     ports:
-      - "8000:8000"
+      - "5000:5000"
     volumes:
       - /mnt/shared:/app/uploads
