@@ -4,7 +4,7 @@ from models.user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://admin:$bookstore1213@bookstore.chnlda7rhewa.us-east-1.rds.amazonaws.com/bookstore"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://admin:bookstore1213@bookstore.chnlda7rhewa.us-east-1.rds.amazonaws.com/bookstore"
 
 db.init_app(app)
 login_manager.init_app(app)
