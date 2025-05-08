@@ -86,6 +86,8 @@ Ademas de las instancias EC2 con la ejecución de los contenedores se implement�
 
 Se puede evidenciar de una mejor manera con el siguiente diagrama de arquitectura:
 
+![TelematicaSwarm](https://github.com/user-attachments/assets/16086e70-e746-49a6-b86b-5a0c0a5e459f)
+
 La instancia _manager_ ademas de ser la encargada de distribuir los servicios a los distintos _workers_ que hayan tambien se asegura de que en la caida de una de las instancias otro trabajador absorva todos los contenedores que esta tenia en su interior para asegurar el cumplimiento del número de répicas mínimo. Finalmente el _manager_ tambien actúa como **Load Balancer** y re dirige al cliente y lo rota entre las distintas instancias de la app.
 
 # 3. Descripción del ambiente de desarrollo y técnico: lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
