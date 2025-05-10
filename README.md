@@ -119,6 +119,7 @@ La instancia _manager_ además de ser la encargada de distribuir los servicios a
 Para el desarrollo de este objetivo en primer lugar se asignó una IP Elástica. Posteriormente, se compró un dominio en Namecheap y se asignó dicha IP a un registro DNS tipo A. 
 
 IP Elástica en AWS EC2: 54.159.205.71
+
 Dominio registrado: https://proyecto2.lat/
 
 Desde que la máquina esté corriendo, la aplicación se puede acceder con normalidad desde ese link.
@@ -133,12 +134,24 @@ Desde que la máquina esté corriendo, la aplicación se puede acceder con norma
 
 # 5. otra información que considere relevante para esta actividad.
 
-# referencias:
+# Referencias
 
-<debemos siempre reconocer los créditos de partes del código que reutilizaremos, así como referencias a youtube, o referencias bibliográficas utilizadas para desarrollar el proyecto o la actividad>
+A continuación se presentan las referencias usadas para el desarrollo del proyecto.
 
-## sitio1-url
+## Aplicación Monolítica Bookstore
 
-## sitio2-url
+Esta es la aplicación Bookstore monolítica ya proporcionada por el profesor del curso como punto de partida.
 
-## url de donde tomo info para desarrollar este proyecto
+https://github.com/st0263eafit/st0263-251/blob/main/proyecto2/BookStore.zip
+
+## Namecheap
+
+Sitio web de donde se obtuvo el dominio proyecto2.lat, donde además se hizo la configuración de DNS.
+
+https://www.namecheap.com/
+
+## ChatGPT
+
+Herramienta de Inteligencia Artificial utilizada para resolver dudas, correcciones de redacción, y consultar sobre mejores prácticas y recursos para el funcionamiento del proyecto.
+
+https://chatgpt.com/
