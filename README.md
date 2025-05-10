@@ -70,25 +70,29 @@ Este proyecto consiste en escalar y rediseñar una aplicación monolítica de ve
 
 1. **Automatización del despliegue:** Scripts y configuraciones que permitan reproducir el despliegue fácilmente.
 
-## 1.2. Que aspectos NO cumplió o desarrolló de la actividad propuesta por el profesor (requerimientos funcionales y no funcionales)
+## 1.2. Qué aspectos NO cumplió o desarrolló de la actividad propuesta por el profesor (requerimientos funcionales y no funcionales)
 
-# 2. información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
+# 2. Información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
 
 ### Objetivo 1
+
+En este primer objetivo se realizó el despliegue de la aplicación monolítica BookStore en una máquina virtual EC2 de AWS. Como parte del diseño de alto nivel, se optó por una arquitectura basada en un único contenedor Docker para la aplicación y otro para la base de datos MySQL, orquestados mediante Docker Compose. Esto permite mantener una separación lógica entre componentes, facilitando el despliegue y la gestión del entorno. Se utilizó una dirección IP elástica para garantizar la persistencia del acceso público a la instancia, y se integró un nombre de dominio personalizado adquirido a través de Namecheap, el cual se configuró mediante registros DNS tipo A para apuntar correctamente al servidor.
+
+Como parte de las buenas prácticas para aplicaciones web, se implementó un proxy inverso utilizando NGINX. Esto actúa como intermediario entre el cliente y la aplicación, redirigiendo el tráfico HTTP/HTTPS hacia el contenedor donde corre BookStore. Además, se instaló un certificado SSL gratuito mediante la herramienta Certbot, lo cual permitió habilitar el protocolo HTTPS y asegurar las comunicaciones entre el cliente y el servidor, cumpliendo con estándares de seguridad. También se configuró una tarea automática para la renovación periódica del certificado, asegurando la continuidad del cifrado sin intervención manual.
 
 ### Objetivo 2
 
 ### Objetivo 3
 
-Para el desarrollo del objetivo 3 se realizo el despliegue de la aplicación utilizando instancias EC2 de AWS que conformaban un cluster de servidores de docker swarm. Se encuentra como primera instancia una máquina _manager_ encargada de manejar el enjambre y a las otras 3 máquinas _workers_ encargadas de mantener en ejecucion las distintas replicas del contenedor de la aplicación.
+Para el desarrollo del objetivo 3 se realizó el despliegue de la aplicación utilizando instancias EC2 de AWS que conformaban un cluster de servidores de Docker Swarm. Se encuentra como primera instancia una máquina _manager_ encargada de gestionar el enjambre y a las otras 3 máquinas _workers_ encargadas de mantener en ejecución las distintas réplicas del contenedor de la aplicación.
 
-Ademas de las instancias EC2 con la ejecución de los contenedores se implementó una instancia de RDS Aurora con MySQL y una máquina EFS.
+Además de las instancias EC2 con la ejecución de los contenedores, se implementó una instancia de RDS Aurora con MySQL y una máquina EFS.
 
-Se puede evidenciar de una mejor manera con el siguiente diagrama de arquitectura:
+Esto se puede evidenciar de una mejor manera con el siguiente diagrama de arquitectura:
 
 ![TelematicaSwarm](https://github.com/user-attachments/assets/16086e70-e746-49a6-b86b-5a0c0a5e459f)
 
-La instancia _manager_ ademas de ser la encargada de distribuir los servicios a los distintos _workers_ que hayan tambien se asegura de que en la caida de una de las instancias otro trabajador absorva todos los contenedores que esta tenia en su interior para asegurar el cumplimiento del número de répicas mínimo. Finalmente el _manager_ tambien actúa como **Load Balancer** y re dirige al cliente y lo rota entre las distintas instancias de la app.
+La instancia _manager_ además de ser la encargada de distribuir los servicios a los distintos _workers_ que hayan, también se asegura de que en la caída de una de las instancias otro trabajador absorba todos los contenedores que esta tenií en su interior para asegurar el cumplimiento del número de répicas mínimo. Finalmente, el _manager_ tambien actúa como **Load Balancer** y redirige al cliente y lo rota entre las distintas instancias de la app.
 
 # 3. Descripción del ambiente de desarrollo y técnico: lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
@@ -109,6 +113,15 @@ La instancia _manager_ ademas de ser la encargada de distribuir los servicios a 
 # 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
 # IP o nombres de dominio en nube o en la máquina servidor.
+
+### Objetivo 1:
+
+Para el desarrollo de este objetivo en primer lugar se asignó una IP Elástica. Posteriormente, se compró un dominio en Namecheap y se asignó dicha IP a un registro DNS tipo A. 
+
+IP Elástica en AWS EC2: 54.159.205.71
+Dominio registrado: https://proyecto2.lat/
+
+Desde que la máquina esté corriendo, la aplicación se puede acceder con normalidad desde ese link.
 
 ## descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
 
