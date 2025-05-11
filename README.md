@@ -110,27 +110,136 @@ La instancia _manager_ además de ser la encargada de distribuir los servicios a
 
 ## opcionalmente - si quiere mostrar resultados o pantallazos
 
-# 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
+# 4. Descripción del ambiente de EJECUCIÓN
+
+Todos los objetivos realizados en el proyecto se trabajaron teniendo como base la aplicación monolítica Bookstore la que utiliza las siguientes tecnologías:
+
+- **Flask (v3.0.2):**
+  Microframework web ligero para Python, ideal para desarrollar aplicaciones web rápidamente y con gran flexibilidad.
+
+- **Flask-SQLAlchemy (v3.1.1):**
+  Extensión para Flask que simplifica el uso de SQLAlchemy, un ORM (Object Relational Mapper) para interactuar con bases de datos relacionales.
+
+- **Flask-Login (v0.6.3):**
+  Extensión que gestiona sesiones de usuario y autenticación de manera sencilla en aplicaciones Flask.
+
+- **PyMySQL (v1.1.0):**
+  Conector MySQL escrito en Python puro que permite conectar Flask (vía SQLAlchemy) a bases de datos MySQL/MariaDB.
+
+- **Werkzeug (v3.0.2):**
+  Biblioteca WSGI que proporciona herramientas útiles para el manejo de solicitudes, respuestas y utilidades relacionadas con servidores web.
 
 # IP o nombres de dominio en nube o en la máquina servidor.
 
 ### Objetivo 1:
 
-Para el desarrollo de este objetivo en primer lugar se asignó una IP Elástica. Posteriormente, se compró un dominio en Namecheap y se asignó dicha IP a un registro DNS tipo A. 
+Para el desarrollo de este objetivo en primer lugar se asignó una IP Elástica. Posteriormente, se compró un dominio en Namecheap y se asignó dicha IP a un registro DNS tipo A.
 
-IP Elástica en AWS EC2: 54.159.205.71
+IP Elástica en AWS EC2: `54.159.205.71`
 
 Dominio registrado: https://proyecto2.lat/
 
 Desde que la máquina esté corriendo, la aplicación se puede acceder con normalidad desde ese link.
 
+### Objetivo 2
+
+### Objetivo 3
+
+Para el desarrollo del objetivo # 3 del proyecto se crearon 4 instancias EC2 de AWS con un manager y 3 workers configurados bajo un cluster docker swarm, la máquina maganer, la cual funciona como punto de llegada del usuario, maneja una direccion IP elástica.
+
+IP Elástica en AWS EC2: `54.152.84.169`
+
+Desde que las máquinas esten corriendo se puede acceder correctamente a la aplicación. Maneja un gran nivel de redundancia y por lo tanto excelente tolerante a fallos.
+
 ## descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
 
-## como se lanza el servidor.
+## Despliegue de los servidores.
 
-## una mini guia de como un usuario utilizaría el software o la aplicación
+### Objetivo 3 (Despliegue en utilizando docker swarm)
 
-## opcionalmente - si quiere mostrar resultados o pantallazos
+Este tutorial te guía paso a paso para crear un clúster Docker Swarm en AWS usando 4 instancias EC2.
+
+#### 1️⃣ Crear 4 Máquinas Virtuales en AWS
+
+1. Ingresa a [AWS EC2 Console](https://console.aws.amazon.com/ec2).
+2. Lanza **4 instancias** con:
+   - Sistema operativo: **Amazon Linux 2** o **Ubuntu 24.04 LTS**
+   - Tipo: `t2.micro` (gratuito)
+   - Red: misma **VPC** y **subred** para permitir comunicación interna
+   - Grupo de seguridad:
+     - SSH: TCP 22 desde tu IP
+     - Docker Swarm: TCP/UDP 2377, 7946, UDP 4789 desde el grupo de seguridad mismo
+3. Asigna un nombre claro a cada instancia:
+   - `manager`
+   - `worker-1`
+   - `worker-2`
+   - `worker-3`
+
+#### 2️⃣ Instalar Docker en cada instancia
+
+Conéctate a cada instancia vía SSH:
+
+```bash
+ssh -i tu-clave.pem ec2-user@IP_PUBLICA
+```
+
+```bash
+# Para Amazon Linux 2
+
+sudo yum update -y
+sudo amazon-linux-extras enable docker
+sudo yum install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+```
+
+```bash
+# Para Ubuntu
+
+sudo apt update && sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+```
+
+#### Inicializar Docker Swarm
+
+En la instancia `manager`:
+
+```bash
+docker swarm init --advertise-addr IP_PRIVADA_MANAGER
+```
+
+Se guarda el token generado y se coneta desde los `workers`:
+
+```bash
+docker swarm join --token SWMTKN-xxx IP_PRIVADA_MANAGER:2377
+```
+
+#### Creación del servicio con 10 réplicas
+
+Desde el `manager` se inicializa el servicio con las 10 réplicas, unicamente para los nodos `worker`:
+
+```bash
+docker service create \
+  --name mi-servicio \
+  --replicas 10 \
+  --constraint 'node.role == worker' \
+  tu_usuario_dockerhub/tu_imagen:tag
+```
+
+Para verificar la creación ejecuta el siguiente comando:
+
+```bash
+docker service ls
+```
+
+## Guía de uso para el usuario
+
+Desde el punto de vista del usuario es transparente la distincion de los 3 despliegues realizados, el usuario solamente ingresa a la dirección IP de una de las máquinas (o el dominio registrado) y se le proveerá la aplicacion con sus funcionalidades correspondientes.
+
+## Imagenes relevalntes
 
 # 5. otra información que considere relevante para esta actividad.
 
@@ -155,3 +264,7 @@ https://www.namecheap.com/
 Herramienta de Inteligencia Artificial utilizada para resolver dudas, correcciones de redacción, y consultar sobre mejores prácticas y recursos para el funcionamiento del proyecto.
 
 https://chatgpt.com/
+
+```
+
+```
