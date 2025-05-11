@@ -239,7 +239,17 @@ docker service ls
 
 Desde el punto de vista del usuario es transparente la distincion de los 3 despliegues realizados, el usuario solamente ingresa a la dirección IP de una de las máquinas (o el dominio registrado) y se le proveerá la aplicacion con sus funcionalidades correspondientes.
 
-## Imagenes relevalntes
+## Imagenes relevantes
+Nodos disponibles del cluster de docker swarm:
+![Screenshot_2025-05-08-20-46-23_1920x2160](https://github.com/user-attachments/assets/58dddb67-8e7b-4e6d-a3b0-2a282d06ee1a)
+
+Réplicas de los contenedores en los nodos `workers`:
+![Screenshot_2025-05-08-20-50-18_1920x2160](https://github.com/user-attachments/assets/1d3ffcae-60de-45ef-803d-d4e1db9a57b0)
+
+La aplicación ejecutandose en los distintos nodos (id de la máquina en la navbar):
+![Screenshot_2025-05-08-20-51-19_1920x2160](https://github.com/user-attachments/assets/b8048b44-3fb3-4373-b901-e67a2dbacb67)
+![Screenshot_2025-05-08-20-51-35_1920x2160](https://github.com/user-attachments/assets/80161b76-6234-4749-8f8f-11c092ac15d2)
+![Screenshot_2025-05-08-20-51-46_1920x2160](https://github.com/user-attachments/assets/670c9ffe-0fdb-4a7e-abd8-78c892bd2979)
 
 # 5. otra información que considere relevante para esta actividad.
 
