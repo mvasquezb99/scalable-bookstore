@@ -12,7 +12,7 @@
 
 # Proyecto 2 - Aplicación Escalable
 
-# 1. breve descripción de la actividad
+# 1. Breve descripción de la actividad
 
 Este proyecto consiste en escalar y rediseñar una aplicación monolítica de venta de libros de segunda llamada BookStore, desarrollada con Flask y MySQL. A través de tres objetivos principales, se despliega primero la aplicación en una máquina virtual en AWS, luego se escala utilizando infraestructura con autoescalamiento y alta disponibilidad, y finalmente se reliza el mismo despliegue de autoescalamiento utilizando la herramienta de docker swarm. El objetivo es aplicar patrones de escalabilidad en la nube y técnicas de ingeniería de software modernas para garantizar rendimiento, disponibilidad y mantenibilidad.
 
@@ -82,6 +82,18 @@ Como parte de las buenas prácticas para aplicaciones web, se implementó un pro
 
 ### Objetivo 2
 
+Para el desarrollo de este objetivo realizamos el despliegue de nuestra aplicación monolítica mediante la implementación de un grupo de autoescalamiento EC2 (EC2 Auto Scaling Group) detrás de un balanceador de carga de aplicaciones (Application Load Balancer), junto con Amazon EFS y Aurora MySQL. En la práctica, esto nos permitió tener una capa de cómputo encargada de ejecutar la aplicación de manera escalable y monitoreada, además de asegurar alta disponibilidad mediante servicios como Aurora MySQL y Amazon EFS.
+
+Al momento de realizar el despliegue, se tuvieron en cuenta las siguientes buenas prácticas:
+
+- La métrica que controla el escalamiento de nuestro grupo de autoescalamiento está basada en el uso de CPU, permitiendo detectar picos de carga en la aplicación y responder de manera adecuada.
+- Nuestro balanceador de carga de aplicaciones realiza verificaciones de salud (health checks) de manera continua a todas las máquinas que se encuentran dentro de su grupo de destino en los servicios de Amazon.
+- Los grupos de seguridad (security groups) tienen habilitados únicamente los puertos de entrada necesarios que satisfacen el rol específico de cada uno de nuestros componentes.
+
+En el siguiente diagrama se puede observar la arquitectura y todos los componentes mencionados anteriormente:
+
+**IMAGEN DESDE GITHUB**
+
 ### Objetivo 3
 
 Para el desarrollo del objetivo 3 se realizó el despliegue de la aplicación utilizando instancias EC2 de AWS que conformaban un cluster de servidores de Docker Swarm. Se encuentra como primera instancia una máquina _manager_ encargada de gestionar el enjambre y a las otras 3 máquinas _workers_ encargadas de mantener en ejecución las distintas réplicas del contenedor de la aplicación.
@@ -142,6 +154,9 @@ Dominio registrado: https://proyecto2.lat/
 Desde que la máquina esté corriendo, la aplicación se puede acceder con normalidad desde ese link.
 
 ### Objetivo 2
+En este objetivo, vamos a acceder a nuestra aplicación desplegada a travez del **Application load balancer** que tenemos en nuestra arquitectura. La dirección DNS que Amazon nos provee para acceder es la siguiente:
+
+**PONER DIRECCIÓN DEL ALB**
 
 ### Objetivo 3
 
@@ -151,9 +166,135 @@ IP Elástica en AWS EC2: `54.152.84.169`
 
 Desde que las máquinas esten corriendo se puede acceder correctamente a la aplicación. Maneja un gran nivel de redundancia y por lo tanto excelente tolerante a fallos.
 
-## descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
+## Descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
 
+### Objetivo 2
+La configuración de parametros para este objetivo es bastante simple, lo siguiente es una lista de todo lo que necesitamos configurar antes de realizar nuestro despligue:
+
+1. Crear los security groups para cada una de nuestras maquinas (Habilitaremos los puertos necesarios):
+    - Para las maquinas EC2 (`sg-web`)
+      - 8000 TCP - Anywhere.
+      - 3306 TCP - Anywhere.
+      - 2049 TCP - Amazon EFS interno.
+    - Para la Base de datos (`sg-aurora`)
+      - 3306 TCP - Anywhere - Entrante.
+    - Para el Application load balancer (`sg-alb`)
+      - 80(HTTP)/443(HTTPS) - Anywhere
+
+2. Crear la base de datos (Aurora MySQL) y guardar el string de conexión a la base de datos.
+3. Creamos un archivo `docker-compose.yml` donde iran los siguientes contenidos:
+    ```yml
+    version: '3.8'
+
+    services:
+      flaskapp:
+        image: <dockerhub user>/<dockerhub repo>:latest
+        restart: always
+        environment:
+          - FLASK_ENV=development
+        ports:
+          - "5000:5000"
+        volumes:
+          - /mnt/shared:/app/uploads
+    ``` 
+    > *No te precupes por la linea de image, el siguiente paso te explica que debes de poner alli.*
+4. Mediante Github actions publicaremos una imagen de nuestra aplicación a la plataforma **Dockerhub** donde podremos acceder a nuestra imagen de manera facil y eficiente. Para lograr esto haremos lo siguiente:
+    
+    1. Crearemos una cuenta en [Dockerhub](https://hub.docker.com/) y iniciaremos un repositorio con el nombre de nuestro proyecto.
+    2. Ingresamos a [Github](https://github.com) y nos dirigimos a nuestro respositorio.
+    3. Vamos a la pestaña donde dice **Settings>Secrets and variables>Actions** y creamos dos secretos que van a ser nuestras credenciales de **Dockerhub**.
+       
+        ```bash
+        DOCKERHUB_USER = xxxx
+        DOCKERHUB_PASS = xxxx
+        ```
+    4. Ahora nos dirigimos a la pestaña de **Actions** y buscamos **Docker image**, esto nos creara un archivo **docker-image.yml** donde pondremos lo siguiente:
+        ```yml
+        name: Docker Image CI
+
+        on:
+          push:
+            branches: [main]
+          pull_request:
+            branches: [main]
+
+        jobs:
+          build:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v2
+
+              - name: Docker Login
+                env:
+                  DOCKER_USER: ${{ secrets.DOCKERHUB_USER }}
+                  DOCKER_PASS: ${{ secrets.DOCKERHUB_PASS }}
+                run: |
+                  docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+              - name: Build the Docker image
+                run: docker build . --file Dockerfile --tag <dockerhub user>/<dockerhub repo>:latest
+
+              - name: Docker Push
+                run: docker push <dockerhub user>/<dockerhub repo>
+        ```
+    5. Hacemos el commit y si todo funciona de manera correcta, tendremos nuestra imagen publicada y lista para ser consumida.
+
+Listo, tenemos todo configurado para empezar a hacer nuestro despliegue en la nube de AWS.
 ## Despliegue de los servidores.
+
+### Objetivo 2
+
+Para el despliegue de nuestra aplicación monolitica escalable y altamente disponible, empezaremos por instanciar los servicios que utilizaremos de AWS y lugo a configurar los elementos claves de nuestra arquitectura.
+
+#### Instanciar los servicios de AWS
+
+1. Para crear la instancia de Aurora MySQL buscamos dentro de nuestra consola de AWS **RDS Aurora** y luego **Create database**, cuando estemos configurando nuestra instancia debes tener en cuenta:
+    - Que sea MySQL.
+    - Que este creada con la `free configuration`.
+    - Que tu definas tanto el usario como la contraseña para acceder.
+    - Asignarle el `security group` previamente creado. 
+    
+2. Ahora buscaremos **EFS** y le damos **Create file system**, le asignamos nuestro `security group` y continuamos con la configuración default.
+
+#### Crear los componentes claves en la consola de EC2
+
+1. Crearemos una `launch template` para que nuestro sistema pueda desplegar maquinas identicas corriendo nuestro poryecto; Para esto vamos a hacer lo siguiente:
+    1. Ingresaremos a **Launch templates>Create launch template** y seleccionaremos lo siguiente:
+        - Sistema operativo `Amazon AMI 2023`.
+        - Tipo de maquina `t2.micro`.
+        - Security group `sg-web`.
+        - En **detalles avanzados** debemos bajar hasta `User Data` y poner lo siguiente:
+            ``` bash
+            #!/bin/bash
+            set -euo pipefail     
+            set -x
+
+            sudo yum update -y
+            sudo yum install -y docker amazon-efs-utils git
+
+            sudo systemctl start docker
+
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+            sudo chmod +x /usr/local/bin/docker-compose
+
+            sudo service docker start
+
+            sudo mkdir -p /mnt/shared
+            sudo mount -t efs -o tls fs-<EFS-ID>:/ /mnt/shared
+            echo "fs-<EFS-ID>:/ /mnt/shared efs _netdev,tls 0 0" >> sudo tee -a /etc/fstab
+
+            sudo git clone --depth 1 https://github.com/<gitUser>/<gitRepo>.git /opt/deploy
+            cd /opt/deploy
+
+            sudo docker-compose pull
+            sudo docker-compose up -d
+            ```
+          > Es importante notar que las credenciales marcadas con <> deben ser reemplazadas por tus respectivas versiones. 
+          
+          Esto nos permitira configurar la maquina para que este lista para recibir peticiones apenas el Auto scaling group la cree.
+
+**CONTINUAR**
 
 ### Objetivo 3 (Despliegue en utilizando docker swarm)
 
@@ -274,7 +415,3 @@ https://www.namecheap.com/
 Herramienta de Inteligencia Artificial utilizada para resolver dudas, correcciones de redacción, y consultar sobre mejores prácticas y recursos para el funcionamiento del proyecto.
 
 https://chatgpt.com/
-
-```
-
-```
