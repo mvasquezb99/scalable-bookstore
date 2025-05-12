@@ -155,9 +155,9 @@ Dominio registrado: https://proyecto2.lat/
 Desde que la máquina esté corriendo, la aplicación se puede acceder con normalidad desde ese link.
 
 ### Objetivo 2
-En este objetivo, vamos a acceder a nuestra aplicación desplegada a travez del **Application load balancer** que tenemos en nuestra arquitectura. La dirección DNS que Amazon nos provee para acceder es la siguiente:
+En este objetivo, vamos a acceder a nuestra aplicación desplegada a través del **Application Load Balancer** que tenemos en nuestra arquitectura. La dirección DNS que Amazon nos provee para acceder es la siguiente:
 
-**PONER DIRECCIÓN DEL ALB**
+[Bookstore](bookstore-alb-11071920.us-east-1.elb.amazonaws.com)
 
 ### Objetivo 3
 
@@ -170,20 +170,22 @@ Desde que las máquinas esten corriendo se puede acceder correctamente a la apli
 ## Descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
 
 ### Objetivo 2
-La configuración de parametros para este objetivo es bastante simple, lo siguiente es una lista de todo lo que necesitamos configurar antes de realizar nuestro despligue:
 
-1. Crear los security groups para cada una de nuestras maquinas (Habilitaremos los puertos necesarios):
-    - Para las maquinas EC2 (`sg-web`)
-      - 8000 TCP - Anywhere.
-      - 3306 TCP - Anywhere.
-      - 2049 TCP - Amazon EFS interno.
-    - Para la Base de datos (`sg-aurora`)
-      - 3306 TCP - Anywhere - Entrante.
-    - Para el Application load balancer (`sg-alb`)
-      - 80(HTTP)/443(HTTPS) - Anywhere
+La configuración de parámetros para este objetivo es bastante simple. A continuación, se presenta una lista de todo lo que debemos configurar antes de realizar nuestro despliegue:
 
-2. Crear la base de datos (Aurora MySQL) y guardar el string de conexión a la base de datos.
-3. Creamos un archivo `docker-compose.yml` donde iran los siguientes contenidos:
+1. Crear los **security groups** para cada una de nuestras máquinas (habilitaremos los puertos necesarios):
+    - Para las máquinas EC2 (`sg-web`):
+        - Puerto 8000 TCP - Anywhere.
+        - Puerto 3306 TCP - Anywhere.
+        - Puerto 2049 TCP - Amazon EFS interno.
+    - Para la base de datos (`sg-aurora`):
+        - Puerto 3306 TCP - Anywhere - Entrante.
+    - Para el Application Load Balancer (`sg-alb`):
+        - Puertos 80 (HTTP) / 443 (HTTPS) - Anywhere.
+
+2. Crear la base de datos (Aurora MySQL) y guardar el string de conexión.
+
+3. Crear un archivo `docker-compose.yml` con el siguiente contenido:
     ```yml
     version: '3.8'
 
@@ -197,19 +199,19 @@ La configuración de parametros para este objetivo es bastante simple, lo siguie
           - "5000:5000"
         volumes:
           - /mnt/shared:/app/uploads
-    ``` 
-    > *No te precupes por la linea de image, el siguiente paso te explica que debes de poner alli.*
-4. Mediante Github actions publicaremos una imagen de nuestra aplicación a la plataforma **Dockerhub** donde podremos acceder a nuestra imagen de manera facil y eficiente. Para lograr esto haremos lo siguiente:
-    
-    1. Crearemos una cuenta en [Dockerhub](https://hub.docker.com/) y iniciaremos un repositorio con el nombre de nuestro proyecto.
-    2. Ingresamos a [Github](https://github.com) y nos dirigimos a nuestro respositorio.
-    3. Vamos a la pestaña donde dice **Settings>Secrets and variables>Actions** y creamos dos secretos que van a ser nuestras credenciales de **Dockerhub**.
-       
+    ```
+    > *No te preocupes por la línea de `image`, el siguiente paso te explica qué debes poner allí.*
+
+4. Publicar una imagen de nuestra aplicación en **DockerHub** usando GitHub Actions, para que podamos acceder a ella de manera fácil y eficiente. Para esto:
+
+    1. Crear una cuenta en [DockerHub](https://hub.docker.com/) e iniciar un repositorio con el nombre de tu proyecto.
+    2. Ir a [GitHub](https://github.com) y acceder a tu repositorio.
+    3. Dirigirse a **Settings > Secrets and variables > Actions** y crear dos secretos con tus credenciales de DockerHub:
         ```bash
         DOCKERHUB_USER = xxxx
         DOCKERHUB_PASS = xxxx
         ```
-    4. Ahora nos dirigimos a la pestaña de **Actions** y buscamos **Docker image**, esto nos creara un archivo **docker-image.yml** donde pondremos lo siguiente:
+    4. Ir a la pestaña de **Actions** y buscar **Docker image**. Esto creará un archivo `docker-image.yml` con el siguiente contenido:
         ```yml
         name: Docker Image CI
 
@@ -238,34 +240,42 @@ La configuración de parametros para este objetivo es bastante simple, lo siguie
               - name: Docker Push
                 run: docker push <dockerhub user>/<dockerhub repo>
         ```
-    5. Hacemos el commit y si todo funciona de manera correcta, tendremos nuestra imagen publicada y lista para ser consumida.
 
-Listo, tenemos todo configurado para empezar a hacer nuestro despliegue en la nube de AWS.
-## Despliegue de los servidores.
+    5. Realiza el commit. Si todo está correcto, tendrás tu imagen publicada y lista para usarse.
+
+---
+
+## Despliegue de los servidores
 
 ### Objetivo 2
 
-Para el despliegue de nuestra aplicación monolitica escalable y altamente disponible, empezaremos por instanciar los servicios que utilizaremos de AWS y lugo a configurar los elementos claves de nuestra arquitectura.
+Para desplegar nuestra aplicación monolítica escalable y altamente disponible, comenzaremos por instanciar los servicios que utilizaremos en AWS y luego configuraremos los elementos clave de nuestra arquitectura.
+
+---
 
 #### Instanciar los servicios de AWS
 
-1. Para crear la instancia de Aurora MySQL buscamos dentro de nuestra consola de AWS **RDS Aurora** y luego **Create database**, cuando estemos configurando nuestra instancia debes tener en cuenta:
-    - Que sea MySQL.
-    - Que este creada con la `free configuration`.
-    - Que tu definas tanto el usario como la contraseña para acceder.
-    - Asignarle el `security group` previamente creado. 
-    
-2. Ahora buscaremos **EFS** y le damos **Create file system**, le asignamos nuestro `security group` y continuamos con la configuración default.
+1. Para crear la instancia de Aurora MySQL:
+    - En la consola de AWS, busca **RDS Aurora** y selecciona **Create database**.
+    - Asegúrate de que:
+        - Sea del tipo MySQL.
+        - Use la opción `Free tier`.
+        - Definas un usuario y contraseña de acceso.
+        - Asignes el `security group` previamente creado.
 
-#### Crear los componentes claves en la consola de EC2
+2. Luego, busca **EFS** y selecciona **Create file system**. Asigna el `security group` y continúa con la configuración predeterminada.
 
-1. Crearemos una `launch template` para que nuestro sistema pueda desplegar maquinas identicas corriendo nuestro poryecto; Para esto vamos a hacer lo siguiente:
-    1. Ingresaremos a **Launch templates>Create launch template** y seleccionaremos lo siguiente:
-        - Sistema operativo `Amazon AMI 2023`.
-        - Tipo de maquina `t2.micro`.
-        - Security group `sg-web`.
-        - En **detalles avanzados** debemos bajar hasta `User Data` y poner lo siguiente:
-            ``` bash
+---
+
+#### Crear los componentes clave en la consola de EC2
+
+1. Crear una `launch template` para desplegar máquinas idénticas ejecutando nuestro proyecto:
+    - Ir a **Launch templates > Create launch template** y configurar:
+        - Sistema operativo: `Amazon AMI 2023`.
+        - Tipo de instancia: `t2.micro`.
+        - Security group: `sg-web`.
+        - En **Advanced details**, baja hasta `User Data` y agrega lo siguiente:
+            ```bash
             #!/bin/bash
             set -euo pipefail     
             set -x
@@ -276,14 +286,13 @@ Para el despliegue de nuestra aplicación monolitica escalable y altamente dispo
             sudo systemctl start docker
 
             sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
             sudo chmod +x /usr/local/bin/docker-compose
 
             sudo service docker start
 
             sudo mkdir -p /mnt/shared
             sudo mount -t efs -o tls fs-<EFS-ID>:/ /mnt/shared
-            echo "fs-<EFS-ID>:/ /mnt/shared efs _netdev,tls 0 0" >> sudo tee -a /etc/fstab
+            echo "fs-<EFS-ID>:/ /mnt/shared efs _netdev,tls 0 0" | sudo tee -a /etc/fstab
 
             sudo git clone --depth 1 https://github.com/<gitUser>/<gitRepo>.git /opt/deploy
             cd /opt/deploy
@@ -291,11 +300,41 @@ Para el despliegue de nuestra aplicación monolitica escalable y altamente dispo
             sudo docker-compose pull
             sudo docker-compose up -d
             ```
-          > Es importante notar que las credenciales marcadas con <> deben ser reemplazadas por tus respectivas versiones. 
-          
-          Esto nos permitira configurar la maquina para que este lista para recibir peticiones apenas el Auto scaling group la cree.
+            > Recuerda reemplazar los valores marcados con `<>` por tus respectivas credenciales y configuraciones.
 
-**CONTINUAR**
+    Esto permite que las máquinas estén listas para recibir peticiones apenas se creen mediante el Auto Scaling Group.
+
+2. Crear el **grupo de destino** donde se conectarán las instancias, y que será usado por el **Application Load Balancer**:
+    - Protocolo: `HTTP`.
+    - Puerto: `5000`.
+
+3. Crear el **Application Load Balancer**:
+    - Ir a **Load balancers > Create load balancer**.
+    - Configurar como `Internet-facing`.
+    - Listener en el puerto 80.
+    - Asignar el grupo de seguridad `sg-alb`.
+    - Asociar el grupo de destino previamente creado.
+
+4. Crear el **Auto Scaling Group**:
+    - Ir a **Auto Scaling groups > Create Auto Scaling group**.
+    - Asignar un nombre específico.
+    - Usar la `launch template` creada anteriormente.
+    - Asociar el Application Load Balancer (esto enlaza automáticamente el grupo de destino).
+    - Tamaño del grupo:
+        - Máquinas deseadas: 2
+        - Mínimas: 2
+        - Máximas: 6
+    - Políticas de escalado:
+        - **Target tracking**
+        - `Target value`: 50%
+        - `Instance warmup`: 120 segundos.
+  
+    Le damos **Create Auto Scaling group** y esperamos a que todo aparezca inicializado. 
+
+---
+
+¡Y listo! Nuestro Auto Scaling Group se encargará de crear automáticamente las instancias, y podremos acceder a la aplicación a través del **Application Load Balancer**.
+
 
 ### Objetivo 3 (Despliegue en utilizando docker swarm)
 
