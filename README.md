@@ -92,7 +92,8 @@ Al momento de realizar el despliegue, se tuvieron en cuenta las siguientes buena
 
 En el siguiente diagrama se puede observar la arquitectura y todos los componentes mencionados anteriormente:
 
-**IMAGEN DESDE GITHUB**
+![image](https://github.com/user-attachments/assets/9868eee5-f684-4720-a8bd-618fe69c2265)
+
 
 ### Objetivo 3
 
