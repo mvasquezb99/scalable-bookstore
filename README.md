@@ -72,6 +72,10 @@ Este proyecto consiste en escalar y rediseñar una aplicación monolítica de ve
 
 ## 1.2. Qué aspectos NO cumplió o desarrolló de la actividad propuesta por el profesor (requerimientos funcionales y no funcionales)
 
+### Objetivo 2
+
+Durante el desarrollo del Objetivo 2, encontramos limitaciones en el escalamiento automatico de servicios externos a la consola de EC2, específicamente con la base de datos Aurora MySQL y el sistema de archivos EFS. Esto se debió a que nuestra cuenta de AWS Academy carecía de los permisos necesarios para utilizar las opciones de autoescalamiento automático de estos servicios. Adicionalmente, las restricciones de la cuenta nos impidieron seleccionar múltiples zonas de disponibilidad (AZ) para las instancias.
+
 # 2. Información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
 
 ### Objetivo 1
