@@ -271,7 +271,7 @@ Para desplegar nuestra aplicación monolítica escalable y altamente disponible,
      - Definas un usuario y contraseña de acceso.
      - Asignes el `security group` previamente creado.
 
-2. Luego, busca **EFS** y selecciona **Create file system**. Asigna el `security group` y continúa con la configuración predeterminada.
+2. Luego, busca **EFS** y selecciona **Create file system**. Asigna el `security group` y continúa con la configuración predeterminada. Recuerda guardar el ID **fs-xxxx** para poder ponerlo mas adelante.
 
 ---
 
@@ -474,3 +474,19 @@ https://www.namecheap.com/
 Herramienta de Inteligencia Artificial utilizada para resolver dudas, correcciones de redacción, y consultar sobre mejores prácticas y recursos para el funcionamiento del proyecto.
 
 https://chatgpt.com/
+
+## Documentación de herramientas en AWS
+Amazon EC2 Launch Templates
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-templates.html
+
+Auto Scaling Groups
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html
+
+Amazon EFS (Elastic File System)
+https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html
+
+Amazon RDS Aurora (MySQL-Compatible)
+https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.html
+
+Elastic Load Balancing (Application Load Balancer)
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
