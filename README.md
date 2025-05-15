@@ -161,6 +161,81 @@ Desde que las máquinas esten corriendo se puede acceder correctamente a la apli
 
 ## Descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
 
+### Objetivo 1
+
+Se presenta una lista de todas las configuraciones necesarias  de la instancia
+
+1. Editar Security Groups (inbound rules):
+    - Puerto 80 HTTP - Anywhere
+    - Puerto 22 SSH - Anywhere
+    - Puerto 443 HTTPS - Anywhere
+    - Puerto 5000 TCP - Anywhere
+
+2. Asignarle una IP Elástica a la instancia.
+
+Esto es útil para la creación del dominio personalizado. Esto se puede hacer en el dashboard de AWS.
+
+3. Comprar un dominio propio
+
+En este caso se usó la plataforma Namecheap, y se obtuvo el dominio [proyecto2.lat](http://proyecto2.lat) . En la plataforma, se configura para que el dominio sea Tipo A, y que apunte a la IP elástica de nuestra instancia.
+
+4. Implementar NGINX como proxy inverso
+
+Crear el archivo en la ruta /etc/nginx/sites-available/bookstore con la siguiente información, teniendo en cuenta el dominio creado:
+
+```
+server {
+   server_name proyecto2.lat www.proyecto2.lat;
+
+   location / {
+       proxy_pass <http://localhost:5000>;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+   }
+
+   listen 443 ssl; # managed by Certbot
+   ssl_certificate /etc/letsencrypt/live/proyecto2.lat/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/proyecto2.lat/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+   if ($host = www.proyecto2.lat) {
+   return 301 https://$host$request_uri;
+   } # managed by Certbot
+
+   if ($host = proyecto2.lat) {
+       return 301 https://$host$request_uri;
+   } # managed by Certbot
+
+   listen 80;
+   server_name proyecto2.lat www.proyecto2.lat;
+   return 404; # managed by Certbot
+
+}
+```
+
+Activar este script con:
+
+```
+sudo ln -s /etc/nginx/sites-available/bookstore /etc/nginx/sites-enabled/
+
+sudo nginx -t && sudo systemctl restart nginx
+```
+
+5. Activar SSL con Let’s Encrypt
+
+Para ello, se usan los siguiente comandos, instalando Certbot primero:
+
+```
+sudo apt install certbot python3-certbot-nginx -y
+
+sudo certbot --nginx -d proyecto2.lat -d www.proyecto2.lat
+```
+
+
 ### Objetivo 2
 
 La configuración de parámetros para este objetivo es bastante simple. A continuación, se presenta una lista de todo lo que debemos configurar antes de realizar nuestro despliegue:
@@ -253,6 +328,40 @@ La configuración de este objetivo está soportada sobre el punto anterior, esto
 EL resto de la configuración del despliegue se realiza dentro de las instancias y a través de Docker Swarm.
 
 ## Despliegue de los servidores
+
+### Objetivo 1
+
+A continuación se presenta la información para desplegar la aplicación monolítica:
+
+1. Crear 1 sola instancia EC2:
+
+En el panel de EC2, se crea una instancia t2.micro, con sistema operativo Ubuntu 22.04
+
+Los grupos de seguridad se editarán después, como se indica en la sección anterior de Configuración de parámetros.
+
+2. Instalación de dependencias
+
+Para el correcto funcionamiento de la aplicación Bookstore, y de su despliegue en página web, se necesitan correr los comandos:
+
+```
+sudo apt update && sudo apt install -y [docker.io](http://docker.io/) docker-compose nginx certbot python3-certbot-nginx
+
+sudo usermod -aG docker $USER && newgrp docker
+```
+
+4. Correr Docker
+
+La aplicación Bookstore ya trae un archivo docker-compose. Lo único faltante es levantar el contenedor:
+
+```
+docker-compose up -d
+```
+
+5. Configuración restante
+
+Seguir los pasos de la sección anterior para la configuración de NGINX, SSL, y dominio propio.
+
+
 
 ### Objetivo 2
 
