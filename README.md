@@ -74,11 +74,11 @@ Este proyecto consiste en escalar y rediseñar una aplicación monolítica de ve
 
 ### Objetivo 2
 
-Durante el desarrollo del Objetivo 2, encontramos limitaciones en el escalamiento automatico de servicios externos a la consola de EC2, específicamente con la base de datos Aurora MySQL y el sistema de archivos EFS. Esto se debió a que nuestra cuenta de AWS Academy carecía de los permisos necesarios para utilizar las opciones de autoescalamiento automático de estos servicios. Adicionalmente, las restricciones de la cuenta nos impidieron seleccionar múltiples zonas de disponibilidad (AZ) para las instancias.
+Durante el desarrollo del Objetivo 2, encontramos limitaciones en el escalamiento automático de servicios externos a la consola de EC2, específicamente con la base de datos Aurora MySQL y el sistema de archivos EFS. Esto se debió a que nuestra cuenta de AWS Academy carecía de los permisos necesarios para utilizar las opciones de autoescalamiento automático de estos servicios. Adicionalmente, las restricciones de la cuenta nos impidieron seleccionar múltiples zonas de disponibilidad (AZ) para las instancias.
 
 ### Objetivo 3
 
-Este objetivo se debía de desarollar principalmente utilizando la herramienta de EKS perteneciente a AWS, pero por faltas de permisos de las cuentas academy no se pudo realizar de esta manera, por el contrario implementamos el despliegue con docker swarm como se explicará mas adelante. Otro aspecto faltante, además de los mencionados en el objetivo 2, es que se realizo el despliegue con escalamiento unicamente con la aplicación monolítica, esto por elección tanto del maestro como del grupo en conjunto por falta de tiempo para el desarrollo.
+Este objetivo se debía de desarrollar principalmente utilizando la herramienta de EKS perteneciente a AWS, pero por faltas de permisos de las cuentas AWS Academy no se pudo realizar de esta manera, por el contrario implementamos el despliegue con Docker Swarm como se explicará mas adelante. Otro aspecto faltante, además de los mencionados en el objetivo 2, es que se realizó el despliegue con escalamiento únicamente con la aplicación monolítica, esto por elección tanto del maestro como del grupo en conjunto por falta de tiempo para el desarrollo.
 
 # 2. Información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
 
@@ -112,7 +112,7 @@ Esto se puede evidenciar de una mejor manera con el siguiente diagrama de arquit
 
 ![TelematicaSwarm](https://github.com/user-attachments/assets/16086e70-e746-49a6-b86b-5a0c0a5e459f)
 
-La instancia _manager_ además de ser la encargada de distribuir los servicios a los distintos _workers_ que hayan, también se asegura de que en la caída de una de las instancias otro trabajador absorba todos los contenedores que esta tenií en su interior para asegurar el cumplimiento del número de répicas mínimo. Finalmente, el _manager_ tambien actúa como **Load Balancer** y redirige al cliente y lo rota entre las distintas instancias de la app.
+La instancia _manager_ además de ser la encargada de distribuir los servicios a los distintos _workers_ que hayan, también se asegura de que en la caída de una de las instancias otro trabajador absorba todos los contenedores que esta teniá en su interior para asegurar el cumplimiento del número de répicas mínimo. Finalmente, el _manager_ tambien actúa como **Load Balancer** y redirige al cliente y lo rota entre las distintas instancias de la app.
 
 # 3. Descripción del ambiente de EJECUCIÓN
 
@@ -153,7 +153,7 @@ En este objetivo, vamos a acceder a nuestra aplicación desplegada a través del
 
 ### Objetivo 3
 
-Para el desarrollo del objetivo # 3 del proyecto se crearon 4 instancias EC2 de AWS con un manager y 3 workers configurados bajo un cluster docker swarm, la máquina maganer, la cual funciona como punto de llegada del usuario, maneja una direccion IP elástica.
+Para el desarrollo del objetivo # 3 del proyecto se crearon 4 instancias EC2 de AWS con un manager y 3 workers configurados bajo un cluster Docker Swarm, la máquina manager, la cual funciona como punto de llegada del usuario, maneja una direccion IP elástica.
 
 IP Elástica en AWS EC2: `54.152.84.169`
 
@@ -241,7 +241,7 @@ La configuración de parámetros para este objetivo es bastante simple. A contin
 
 ### Objetivo 3
 
-La configuración de este objetivo esta soportada sobre el punto anterior, esto ya que se utiliza la misma imagen de docker hub configurada anteriormente.
+La configuración de este objetivo está soportada sobre el punto anterior, esto ya que se utiliza la misma imagen de docker hub configurada anteriormente.
 
 - Para las máquinas EC2 (`sg-web`):
   - Puertos mencionados en el obetivo 2
@@ -250,7 +250,7 @@ La configuración de este objetivo esta soportada sobre el punto anterior, esto 
   - Puerto 2377 (TCP) - Anywhere
   - Puerto 5000 (TCP) - Anywhere
 
-EL resto de la configuración del despliegue se realiza dentro de las instancias y a travéz de docker swarm.
+EL resto de la configuración del despliegue se realiza dentro de las instancias y a través de Docker Swarm.
 
 ## Despliegue de los servidores
 
@@ -271,7 +271,7 @@ Para desplegar nuestra aplicación monolítica escalable y altamente disponible,
      - Definas un usuario y contraseña de acceso.
      - Asignes el `security group` previamente creado.
 
-2. Luego, busca **EFS** y selecciona **Create file system**. Asigna el `security group` y continúa con la configuración predeterminada. Recuerda guardar el ID **fs-xxxx** para poder ponerlo mas adelante.
+2. Luego, busca **EFS** y selecciona **Create file system**. Asigna el `security group` y continúa con la configuración predeterminada. Recuerda guardar el ID **fs-xxxx** para poder ponerlo más adelante.
 
 ---
 
@@ -350,7 +350,7 @@ Para desplegar nuestra aplicación monolítica escalable y altamente disponible,
 
 ¡Y listo! Nuestro Auto Scaling Group se encargará de crear automáticamente las instancias, y podremos acceder a la aplicación a través del **Application Load Balancer**.
 
-### Objetivo 3 (Despliegue en utilizando docker swarm)
+### Objetivo 3 (Despliegue utilizando Docker Swarm)
 
 Este tutorial te guía paso a paso para crear un clúster Docker Swarm en AWS usando 4 instancias EC2.
 
@@ -432,7 +432,7 @@ docker service ls
 
 ## Guía de uso para el usuario
 
-Desde el punto de vista del usuario es transparente la distincion de los 3 despliegues realizados, el usuario solamente ingresa a la dirección IP de una de las máquinas (o el dominio registrado) y se le proveerá la aplicacion con sus funcionalidades correspondientes.
+Desde el punto de vista del usuario es transparente la distinción de los 3 despliegues realizados, el usuario solamente ingresa a la dirección IP de una de las máquinas (o el dominio registrado) y se le proveerá la aplicacion con sus funcionalidades correspondientes.
 
 ![image](https://github.com/user-attachments/assets/7a7c728d-0a45-4422-8142-748ac0d181b3)
 ![image](https://github.com/user-attachments/assets/1466261d-3cc8-42a3-9ce4-608d8b976120)
@@ -440,15 +440,15 @@ Desde el punto de vista del usuario es transparente la distincion de los 3 despl
 
 
 
-## Imagenes relevantes
+## Imágenes relevantes
 
-Nodos disponibles del cluster de docker swarm:
+Nodos disponibles del cluster de Docker Swarm:
 ![Screenshot_2025-05-08-20-46-23_1920x2160](https://github.com/user-attachments/assets/58dddb67-8e7b-4e6d-a3b0-2a282d06ee1a)
 
 Réplicas de los contenedores en los nodos `workers`:
 ![Screenshot_2025-05-08-20-50-18_1920x2160](https://github.com/user-attachments/assets/1d3ffcae-60de-45ef-803d-d4e1db9a57b0)
 
-La aplicación ejecutandose en los distintos nodos (id de la máquina en la navbar):
+La aplicación ejecutándose en los distintos nodos (id de la máquina en la navbar):
 ![Screenshot_2025-05-08-20-51-19_1920x2160](https://github.com/user-attachments/assets/b8048b44-3fb3-4373-b901-e67a2dbacb67)
 ![Screenshot_2025-05-08-20-51-35_1920x2160](https://github.com/user-attachments/assets/80161b76-6234-4749-8f8f-11c092ac15d2)
 ![Screenshot_2025-05-08-20-51-46_1920x2160](https://github.com/user-attachments/assets/670c9ffe-0fdb-4a7e-abd8-78c892bd2979)
